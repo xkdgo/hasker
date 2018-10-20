@@ -55,7 +55,7 @@
         <p class="rating">{{ answer.rating }}</p>
         <a class="btn-warning btn-sm-1 mb-1" href="{% url 'answer-vote' answer.id 'dislike' %}">Unvote</a>
         {% if answer.right_answer %}
-        <p class="rating">BEST</p>
+        <p class="text">BEST</p>
         {% endif %}
 
         {% if object.author == user %}
