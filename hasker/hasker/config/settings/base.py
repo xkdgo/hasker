@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'qa.apps.QaConfig',
     'users.apps.UsersConfig',
     'crispy_forms',
+    'taggit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

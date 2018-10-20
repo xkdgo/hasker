@@ -10,6 +10,9 @@
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
 </nav>
+{% if tag %}
+    <h2>Questions tagged with {{ tag.name }}</h2>
+{% endif %}
 {% for question in questions %}
 <article class="media content-section">
     <img class="rounded-circle article-img" src="{{ question.author.profile.image.url }}">
@@ -19,7 +22,35 @@
             <small class="text-muted">{{ question.date_posted|date:"Ymd, H:i e" }}</small>
         </div>
         <h2><a class="article-title" href="{% url 'question-detail' question.slug question.id %}">{{ question.title }}</a></h2>
+        <p class="tags">
+          Tags:
+          {% for tag in question.tags.all %}
+            <a href="{% url 'question_list_by_tag' tag.slug %}">
+              {{ tag.name }}
+            </a>
+            {% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </p>
         <p class="article-content">{{question.content}}</p>
+    </div>
+    <div class="btn-group-vertical">
+
+
+        <p class="rating">
+            Votes
+            {{ question.rating }}
+        </p>
+        <p class="rating">
+            Answers
+            {{ question.answers.count }}
+        </p>
+
+        {% if question.status == 'unanswered' %}
+        <button type="button" class="btn btn-outline-alarm">Требует ответа</button>
+        {% elif question.status == 'answered' %}
+        <button type="button" class="btn btn-outline-success">Решено</button>
+        {% endif %}
+
     </div>
 </article>
 {% endfor %}

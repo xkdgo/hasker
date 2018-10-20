@@ -35,7 +35,12 @@ from .models import (
     LikeAnswer,
     DisLikeAnswer,
 )
-from .forms import AnswerForm
+from taggit.models import Tag
+from .forms import (
+    AnswerForm,
+    QuestionForm,
+    QuestionFormUpdate
+)
 from functools import reduce
 
 
@@ -44,7 +49,25 @@ class QuestionListView(ListView):
     template_name = 'hasker/home.html'  # <app>/<model>_<viewtype>.html
     context_object_name = 'questions'
     ordering = ['-date_posted']
-    paginate_by = 5
+    paginate_by = 2
+
+    def get(self, request, *args, **kwargs):
+        self.tag_slug = kwargs.get("tag_slug", None)
+        return super().get(self, request, *args, **kwargs)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        self.tag = None
+        if self.tag_slug:
+            self.tag = get_object_or_404(Tag, slug=self.tag_slug)
+            queryset = queryset.filter(tags__in=[self.tag])
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if self.tag:
+            context['tag'] = self.tag
+        return context
 
 
 class QuestionDetailViewGet(DetailView):
@@ -95,7 +118,7 @@ class QuestionDetailView(View):
 
 class QuestionCreateView(LoginRequiredMixin, CreateView):
     model = Question
-    fields = ['title', 'content']
+    form_class = QuestionForm
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -115,7 +138,7 @@ class QuestionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class QuestionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Question
-    fields = ['content']
+    form_class = QuestionFormUpdate
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -140,7 +163,6 @@ class VoteView(View):
         instance = get_object_or_404(self.get_instance_model(), pk=self.kwargs['pk'])
         if instance.author == self.request.user:
             messages.warning(self.request, f'You cant vote for your own')
-            # return JsonResponse({'rating': instance.rating})
             return HttpResponseRedirect(self.request.META['HTTP_REFERER'])
         mark_model, like_method = self.get_mark_model_method(self.kwargs['vote'])
         print(mark_model, like_method)
