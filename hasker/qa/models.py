@@ -7,6 +7,14 @@ from pytils.translit import translify
 from taggit.managers import TaggableManager
 
 
+class QuestionManager(models.Manager):
+    def new(self):
+        return self.all().order_by('-date_posted')
+
+    def popular(self):
+        return self.all().order_by('-rating', '-date_posted')
+
+
 class QuestAns(models.Model):
     content = models.TextField()
     date_posted = models.DateTimeField(default=timezone.now)
@@ -36,7 +44,9 @@ class Question(QuestAns):
     status = models.CharField(max_length=10,
                               choices=STATUS_CHOICES,
                               default='unanswered')
+    objects = models.Manager()
     tags = TaggableManager()
+    cust_objects = QuestionManager()
 
     def __str__(self):
         return self.title
