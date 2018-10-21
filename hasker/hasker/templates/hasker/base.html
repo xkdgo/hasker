@@ -34,6 +34,10 @@
                     <a class="nav-item nav-link" href="{% url 'hasker-about' %}">About</a>
                 </div>
                 <!-- Navbar Right Side -->
+                <form id="searchform" action="{% url 'nav-search' %}" method="get" accept-charset="utf-8">
+                  <input class="searchfield" id="searchbox" name="navsearch" type="text" placeholder="Enter your search">
+                  <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Search</button>
+                </form>
                 <div class="navbar-nav">
                     {% if user.is_authenticated %}
                     <a class="nav-item nav-link" href="{% url 'question-create'%}">New Question</a>

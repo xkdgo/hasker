@@ -8,6 +8,7 @@ from .views import (
     QuestionVote,
     AnswerVote,
     BestAnswer,
+    SearchQuestionListView,
 )
 
 # from hasker.config import views as hasker_views
@@ -24,5 +25,6 @@ urlpatterns = [
     path('tag/<slug:tag_slug>/',
          QuestionListView.as_view(template_name="hasker/home.html"),
          name='question_list_by_tag'),
+    path('search/', SearchQuestionListView.as_view(template_name="hasker/home.html"), name='nav-search'),
     path('', QuestionListView.as_view(template_name="hasker/home.html"), name='hasker-home'),
 ]

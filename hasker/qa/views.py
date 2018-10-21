@@ -42,6 +42,7 @@ from .forms import (
     QuestionFormUpdate
 )
 from functools import reduce
+import operator
 
 
 class QuestionListView(ListView):
@@ -68,6 +69,89 @@ class QuestionListView(ListView):
         if self.tag:
             context['tag'] = self.tag
         return context
+
+
+class SearchQuestionListView(ListView):
+    model = Question
+    template_name = 'hasker/home.html'  # <app>/<model>_<viewtype>.html
+    context_object_name = 'questions'
+    ordering = ['-date_posted']
+    paginate_by = 2
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.query_condition = "icontains"
+        self.int_query_fields = []
+        self.query_fields = ["%s__%s" % (f.name, self.query_condition)
+                             for f in self.model._meta.fields
+                             if (isinstance(f, models.CharField) or
+                                 isinstance(f, models.TextField))]
+
+    def get_Q(self, query_list):
+        """
+        Prepare Q statement for query
+        """
+
+        def get_q(f):
+            if "__" not in f:
+                return "%s__%s" % (f, self.query_condition)
+            else:
+                return f
+
+        # Next statement combines two solutions
+        # first: find word in any char field an text field
+        # q = reduce(lambda x, y: x | Q(**{get_q(y): query}),
+        #            self.query_fields[1:],
+        #            Q(**{get_q(self.query_fields[0]): query}))
+
+        # second: find all of list's words in any char field an text field
+        # query_list = query.split()
+        # result = result.filter(
+        #     reduce(operator.and_,
+        #            (Q(title__icontains=q) for q in query_list)) |
+        #     reduce(operator.and_,
+        #            (Q(content__icontains=q) for q in query_list))
+        # )
+
+        q = reduce(lambda x, y: x | reduce(operator.and_,
+                   (Q(**{get_q(y): query}) for query in query_list)), self.query_fields[1:],
+                   reduce(operator.and_,
+                          (Q(**{get_q(self.query_fields[0]): query}) for query in query_list))
+                   )
+
+        if self.int_query_fields and isinstance(query_list[0], int):
+            v = int(query_list[0])
+            for f in self.int_query_fields:
+                q |= Q(**{f: v})
+        return q
+
+    def get_queryset(self):
+        search_term = ''
+        if 'navsearch' in self.request.GET:
+            search_term = self.request.GET['navsearch']
+            if not search_term.startswith("tag:"):
+                # search in text and char field of model
+                query_list = search_term.split()
+                if search_term and self.query_fields:
+                    return self.model.objects.filter(self.get_Q(query_list)).order_by('-rating', '-date_posted')
+                else:
+                    messages.warning(self.request, f"Nothing finded for {search_term}")
+                    return super().get_queryset()
+            # search by tags tag: tag1 tag2
+            # remove tag: keyword from query
+            query_tag_name_list = search_term[4:].split()
+            queryset = super().get_queryset()
+            try:
+                tag_obj_list = [get_object_or_404(Tag, name=tag_name) for tag_name in query_tag_name_list]
+            except Http404:
+                messages.warning(self.request, f"Nothing finded for {search_term}")
+                return super().get_queryset()
+            tag_obj_list = list(set(tag_obj_list))
+            queryset = queryset.filter(tags__in=tag_obj_list).distinct()
+            return queryset
+        # if empty search
+        messages.warning(self.request, f"Nothing finded for {search_term}")
+        return super().get_queryset()
 
 
 class QuestionDetailViewGet(DetailView):
@@ -165,7 +249,6 @@ class VoteView(View):
             messages.warning(self.request, f'You cant vote for your own')
             return HttpResponseRedirect(self.request.META['HTTP_REFERER'])
         mark_model, like_method = self.get_mark_model_method(self.kwargs['vote'])
-        print(mark_model, like_method)
         new_like_or_dislike, created = mark_model.objects.get_or_create(user=self.request.user,
                                                                         **self.like_procedure(
                                                                             self.kwargs['vote'], instance.id))
