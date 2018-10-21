@@ -1,4 +1,5 @@
 {% load static %}
+{%	load qa_tags %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -66,13 +67,17 @@
         </div>
         <div class="col-md-4">
             <div class="content-section">
-                <h3>Hasker News</h3>
-                <p class='text-muted'>Some news
+                <h3>Trending</h3>
+                <p class='text-muted'>
+                    {% show_trending %}
+
                 <ul class="list-group">
-                    <li class="list-group-item list-group-item-light">Latest Questions</li>
-                    <li class="list-group-item list-group-item-light">Announcements</li>
-                    <li class="list-group-item list-group-item-light">Calendars</li>
-                    <li class="list-group-item list-group-item-light">etc</li>
+                    <li class="list-group-item list-group-item-light">
+                        <a class="btn btn-outline-info mb=4" href="{% url 'question-latest' %}">New Questions</a>
+                    </li>
+                    <li class="list-group-item list-group-item-light">
+                        <a class="btn btn-outline-info mb=4" href="{% url 'question-hot' %}">Hot Questions</a>
+                    </li>
                 </ul>
                 </p>
             </div>
