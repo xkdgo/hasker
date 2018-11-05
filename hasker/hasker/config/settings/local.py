@@ -46,5 +46,5 @@ if DEBUG:
             'INTERCEPT_REDIRECTS': False,
         }
 
-MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, '..', '..', 'htdocs', 'media'))
+MEDIA_ROOT = os.path.normpath(os.path.join(BASE_DIR, '..', '..', 'media'))
 MEDIA_URL = '/media/'
