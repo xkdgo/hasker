@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from pytils.translit import translify
+from taggit.managers import TaggableManager
 
 
 class QuestAns(models.Model):
@@ -35,6 +36,7 @@ class Question(QuestAns):
     status = models.CharField(max_length=10,
                               choices=STATUS_CHOICES,
                               default='unanswered')
+    tags = TaggableManager()
 
     def __str__(self):
         return self.title

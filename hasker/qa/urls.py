@@ -21,5 +21,8 @@ urlpatterns = [
     path('question/<int:pk>/ld/<str:vote>', QuestionVote.as_view(), name='question-vote'),
     path('answer/<int:pk>/ld/<str:vote>', AnswerVote.as_view(), name='answer-vote'),
     path('answer/<int:pk>/best', BestAnswer.as_view(), name='answer-best'),
+    path('tag/<slug:tag_slug>/',
+         QuestionListView.as_view(template_name="hasker/home.html"),
+         name='question_list_by_tag'),
     path('', QuestionListView.as_view(template_name="hasker/home.html"), name='hasker-home'),
 ]

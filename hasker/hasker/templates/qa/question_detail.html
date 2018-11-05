@@ -17,6 +17,15 @@
             {% endif %}
         </div>
         <h2 class="article-title"> {{ object.title }}</h2>
+        <p class="tags">
+          Tags:
+          {% for tag in object.tags.all %}
+            <a href="{% url 'question_list_by_tag' tag.slug %}">
+              {{ tag.name }}
+            </a>
+            {% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </p>
         <p class="article-content">{{ object.content }}</p>
     </div>
 
@@ -65,7 +74,7 @@
 
 </article>
 {% endfor %}
-{% if object.author != user and user.is_authenticated %}
+{% if user.is_authenticated %}
 <form action="{% url 'question-detail' object.slug object.id %}" method="POST">
     {% csrf_token %}
     <fieldset class="form-group">
