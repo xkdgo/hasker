@@ -7,7 +7,7 @@
     <div class="media-body">
         <div class="article-metadata">
             <a class="mr-2" href="#">{{ object.author }}</a>
-            <small class="text-muted">{{ object.date_posted|date:"Ymd, H:i e" }}</small>
+            <small class="text-muted">asked {{ object.date_posted|timesince }} ago</small>
             {% if object.author == user %}
             <div>
                 <a class="btn-secondary btn-sm-1 mb-1"
@@ -48,7 +48,7 @@
     <div class="media-body">
         <div class="article-metadata">
             <a class="mr-2" href="#">{{ answer.author }}</a>
-            <small class="text-muted">{{ answer.date_posted|date:"Ymd, H:i e" }}</small>
+            <small class="text-muted">answered {{ answer.date_posted|timesince }} ago</small>
             {% if answer.author == user %}
             <div>
                 <a class="btn-secondary btn-sm-1 mb-1" href="#">Update</a>
