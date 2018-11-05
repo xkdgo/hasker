@@ -71,6 +71,22 @@ class QuestionListView(ListView):
         return context
 
 
+class NewQuestionListView(ListView):
+    model = Question
+    template_name = 'hasker/home.html'  # <app>/<model>_<viewtype>.html
+    context_object_name = 'questions'
+    ordering = ['-date_posted']
+    paginate_by = 2
+
+
+class HotQuestionListView(ListView):
+    model = Question
+    template_name = 'hasker/home.html'  # <app>/<model>_<viewtype>.html
+    context_object_name = 'questions'
+    ordering = ['-rating']
+    paginate_by = 2
+
+
 class SearchQuestionListView(ListView):
     model = Question
     template_name = 'hasker/home.html'  # <app>/<model>_<viewtype>.html

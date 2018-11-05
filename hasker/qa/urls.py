@@ -9,6 +9,8 @@ from .views import (
     AnswerVote,
     BestAnswer,
     SearchQuestionListView,
+    NewQuestionListView,
+    HotQuestionListView
 )
 
 # from hasker.config import views as hasker_views
@@ -16,6 +18,8 @@ from .views import (
 
 urlpatterns = [
     path('question/new', QuestionCreateView.as_view(), name='question-create'),
+    path('question/latest', NewQuestionListView.as_view(template_name="hasker/home.html"), name='question-latest'),
+    path('question/hot', HotQuestionListView.as_view(template_name="hasker/home.html"), name='question-hot'),
     path('question/<str:slug>/<int:pk>', QuestionDetailView.as_view(), name='question-detail'),
     path('question/<str:slug>/<int:pk>/delete', QuestionDeleteView.as_view(), name='question-delete'),
     path('question/<str:slug>/<int:pk>/update', QuestionUpdateView.as_view(), name='question-update'),
