@@ -50,6 +50,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'qa.apps.QaConfig',
     'users.apps.UsersConfig',
     'crispy_forms',
     'django.contrib.admin',

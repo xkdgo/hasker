@@ -1,0 +1,102 @@
+{% extends 'hasker/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}"/>
+
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="#">{{ object.author }}</a>
+            <small class="text-muted">{{ object.date_posted|date:"Ymd, H:i e" }}</small>
+            {% if object.author == user %}
+            <div>
+                <a class="btn-secondary btn-sm-1 mb-1"
+                   href="{% url 'question-update' object.slug object.id %}">Update</a>
+                <a class="btn-danger btn-sm-1 mb-1" href="{% url 'question-delete' object.slug object.id %}">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+        <h2 class="article-title"> {{ object.title }}</h2>
+        <p class="article-content">{{ object.content }}</p>
+    </div>
+
+    <div class="btn-group-vertical">
+
+        <a class="btn-warning btn-sm-1 mb-1" href="{% url 'question-vote' object.id 'like' %}">Vote</a>
+        <p class="rating">{{ question.rating }}</p>
+        <a class="btn-warning btn-sm-1 mb-1" href="{% url 'question-vote' object.id 'dislike' %}">Unvote</a>
+        {% if object.status == 'unanswered' %}
+        <button type="button" class="btn btn-outline-alarm">Требует ответа</button>
+        {% elif object.status == 'answered' %}
+        <button type="button" class="btn btn-outline-success">Решено</button>
+        {% endif %}
+
+    </div>
+</article>
+{% for answer in answers_list %}
+<article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ answer.author.profile.image.url }}">
+    <div class="media-body">
+        <div class="article-metadata">
+            <a class="mr-2" href="#">{{ answer.author }}</a>
+            <small class="text-muted">{{ answer.date_posted|date:"Ymd, H:i e" }}</small>
+            {% if answer.author == user %}
+            <div>
+                <a class="btn-secondary btn-sm-1 mb-1" href="#">Update</a>
+                <a class="btn-danger btn-sm-1 mb-1" href="#">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+        <p class="article-content">{{ answer.content }}</p>
+    </div>
+
+    <div class="btn-group-vertical">
+        <a class="btn-warning btn-sm-1 mb-1" href="{% url 'answer-vote' answer.id 'like' %}">Vote</a>
+        <p class="rating">{{ answer.rating }}</p>
+        <a class="btn-warning btn-sm-1 mb-1" href="{% url 'answer-vote' answer.id 'dislike' %}">Unvote</a>
+        {% if answer.right_answer %}
+        <p class="text">BEST</p>
+        {% endif %}
+
+        {% if object.author == user %}
+        <a type="button" class="btn btn-outline-success" href="{% url 'answer-best' answer.id %}">MarkBest</a>
+        {% endif %}
+    </div>
+
+</article>
+{% endfor %}
+{% if object.author != user and user.is_authenticated %}
+<form action="{% url 'question-detail' object.slug object.id %}" method="POST">
+    {% csrf_token %}
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Put Your Answer Here</legend>
+        {{ form|crispy }}
+
+    </fieldset>
+    <div class="form-group">
+        <button class="btn btn-outline-info" type="submit">Answer Now</button>
+    </div>
+</form>
+{% endif %}
+{# if is_paginated #}
+
+{% if answers_list.has_previous %}
+<a class="btn btn-outline-info mb=4" href="?page=1">First</a>
+<a class="btn btn-outline-info mb=4" href="?page={{ answers_list.previous_page_number }}">Previous</a>
+{% endif %}
+
+{% for num in answers_list.paginator.page_range %}
+{% if answers_list.number == num %}
+<a class="btn btn-info mb=4" href="?page={{ num }}">{{ num }}</a>
+{% elif num > answers_list.number|add:'-3' and num < answers_list.number|add:'3'%}
+<a class="btn btn-outline-info mb=4" href="?page={{ num }}">{{ num }}</a>
+{% endif %}
+{% endfor %}
+
+{% if answers_list.has_next %}
+<a class="btn btn-outline-info mb=4" href="?page={{ answers_list.next_page_number }}">Next</a>
+<a class="btn btn-outline-info mb=4" href="?page={{ answers_list.paginator.num_pages }}">Last</a>
+{% endif %}
+
+{# endif #}
+{% endblock content %}
