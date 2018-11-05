@@ -73,7 +73,7 @@ ROOT_URLCONF = 'hasker.config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [root('templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -137,7 +137,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, '..', '..', 'htdocs', 'static'))
+STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, '..', '..', 'htdocs'))
 # указывает на папку hasker/htdocs/static
 # в nginx и apache2 указывается alias на абсолютный путь
 # после этого запускаем python3 manage.py collectstatic
+STATICFILES_DIRS = (os.path.join('static'), )
